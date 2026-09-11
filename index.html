@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RX7LOTTERY</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: sans-serif;
+    background: #f0f0f0;
+    color: #333;
+    margin: 0;
+    min-height: 100vh;
+    padding-bottom: 90px;
+  }
+
+  /* ===== AUTH ===== */
+  #authScreen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    color: #fff;
+  }
+  .box {
+    background: rgba(15, 52, 96, 0.85);
+    padding: 30px 25px;
+    border-radius: 18px;
+    width: 100%;
+    max-width: 360px;
+    border: 1px solid rgba(0, 255, 204, 0.2);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    position: relative;
+    overflow: hidden;
+  }
+  .title-wrap { position: relative; height: 60px; margin-bottom: 5px; }
+  .title {
+    position: absolute; width: 100%; text-align: center; top: 0;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+  }
+  .title h1 { color: #00ffcc; font-size: 24px; margin: 0; }
+  .title .sub { color: #888; font-size: 13px; margin-top: 5px; }
+  .title.left { transform: translateX(0); opacity: 1; }
+  .title.right { transform: translateX(120%); opacity: 0; }
+  .title.hidden-left { transform: translateX(-120%); opacity: 0; }
+
+  .form-wrap { position: relative; overflow: hidden; }
+  .form-slide { transition: transform 0.4s ease; display: flex; width: 200%; }
+  .form-panel { width: 50%; padding: 0 2px; }
+
+  input {
+    width: 100%; padding: 14px; margin: 8px 0;
+    border-radius: 10px; border: 1px solid #444;
+    background: #1a1a2e; color: #fff; font-size: 16px;
+  }
+  input:focus { outline: none; border-color: #00ffcc; }
+
+  button.main {
+    width: 100%; padding: 14px; margin-top: 12px;
+    border-radius: 10px; border: none; cursor: pointer;
+    font-size: 16px; font-weight: bold;
+    background: linear-gradient(135deg, #00ffcc, #00aa88);
+    color: #000;
+  }
+
+  .msg {
+    text-align: center; font-size: 14px; min-height: 20px;
+    margin: 10px 0; color: #ff6666;
+  }
+  .msg.ok { color: #00ffcc; }
+
+  .switch {
+    display: flex; background: #1a1a2e; border-radius: 25px;
+    padding: 4px; margin: 15px 0 10px; position: relative;
+    border: 1px solid #333;
+  }
+  .switch-btn {
+    flex: 1; padding: 10px; text-align: center; font-size: 14px;
+    cursor: pointer; z-index: 2; position: relative; color: #888;
+    border: none; background: none; font-weight: bold;
+  }
+  .switch-btn.active { color: #000; }
+  .slider {
+    position: absolute; top: 4px; left: 4px;
+    width: calc(50% - 4px); height: calc(100% - 8px);
+    background: linear-gradient(135deg, #00ffcc, #00aa88);
+    border-radius: 20px; transition: transform 0.3s ease; z-index: 1;
+  }
+  .slider.right { transform: translateX(100%); }
+
+  .credit {
+    text-align: center; margin-top: 22px; font-size: 12px;
+    color: #666; line-height: 1.8;
+    border-top: 1px solid rgba(0, 255, 204, 0.15);
+    padding-top: 15px;
+  }
+  .credit span { color: #00ffcc; font-weight: bold; }
+
+  /* ===== HOME ===== */
+  #homeScreen {
+    display: none;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  #homeScreen.active { display: block; }
+
+  .top-bar {
+    background: #5c1a1a;
+    color: #fff;
+    text-align: center;
+    padding: 18px;
+    font-size: 20px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+  }
+
+  /* ===== BANNER ===== */
+  .banner-box {
+    margin: 18px 15px;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.35);
+    min-height: 180px;
+    background: #5c1a1a;
+  }
+  .banner-bg {
+    display: block;
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+  }
+  .banner-text {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 15px;
+    color: #fff;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.95);
+  }
+  .banner-text .line1 {
+    font-size: 13px; color: #ffcc00;
+    font-weight: bold; margin-bottom: 4px;
+    letter-spacing: 1px;
+  }
+  .banner-text .line2 {
+    font-size: 15px; font-weight: bold; margin-bottom: 6px;
+  }
+  .banner-text .line3 {
+    font-size: 34px; color: #ffcc00;
+    font-weight: bold; margin-bottom: 4px;
+    text-shadow: 0 0 20px rgba(255,204,0,0.9), 2px 2px 8px rgba(0,0,0,1);
+    letter-spacing: 2px;
+  }
+  .banner-text .line4 {
+    font-size: 11px; color: #fff; opacity: 0.95;
+  }
+
+  /* ===== CARD ROW ===== */
+  .card-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 0 15px 18px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 25px 15px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .card:active { transform: scale(0.97); }
+  .card-img {
+    width: 90px;
+    height: 90px;
+    object-fit: contain;
+    margin: 0 auto 10px;
+    display: block;
+  }
+  .card-icon {
+    font-size: 42px;
+    margin-bottom: 12px;
+  }
+  .card-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  /* ===== NOTICE BAR ===== */
+  .notice-bar {
+    background: #5c1a1a;
+    color: #fff;
+    margin: 0 15px 20px;
+    padding: 18px 20px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 1.7;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  }
+
+  /* ===== BOTTOM NAV ===== */
+  .bottom-nav {
+    position: fixed;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 30px);
+    max-width: 470px;
+    background: #e0e0e0;
+    display: none;
+    justify-content: space-around;
+    align-items: center;
+    padding: 8px;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    z-index: 500;
+  }
+  .bottom-nav.show { display: flex; }
+
+  .nav-item {
+    background: none; border: none;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 4px;
+    cursor: pointer; color: #666;
+    font-size: 13px; padding: 10px 15px;
+    border-radius: 12px; flex: 1;
+    transition: all 0.3s; font-weight: bold;
+  }
+  .nav-item .nav-icon { font-size: 22px; line-height: 1; }
+  .nav-item.active {
+    background: #5c1a1a;
+    color: #fff;
+  }
+
+  /* ===== PAGES ===== */
+  .page {
+    display: none;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 15px;
+  }
+  .page.active { display: block; }
+
+  .app-name {
+    color: #5c1a1a; font-size: 24px;
+    margin: 5px 0 20px; text-align: center;
+  }
+
+  .info-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 18px;
+    margin: 12px 0;
+    text-align: center;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+  }
+  .info-label { font-size: 13px; color: #888; margin-bottom: 8px; }
+  .info-value, .ref-code, .ref-count {
+    font-size: 20px; color: #5c1a1a; font-weight: bold;
+  }
+  .ref-code {
+    font-size: 22px; letter-spacing: 3px;
+    background: #f5f5f5;
+    padding: 12px; border-radius: 8px; margin: 8px 0;
+    font-family: monospace;
+  }
+  .copy-btn {
+    background: #5c1a1a;
+    border: none; padding: 10px 20px; border-radius: 8px;
+    font-size: 14px; font-weight: bold; cursor: pointer;
+    margin-top: 8px; color: #fff;
+  }
+  .bonus-total { color: #d4a017; font-size: 24px; }
+
+  .back-btn {
+    background: #5c1a1a; color: #fff; border: none;
+    padding: 12px 25px; border-radius: 10px;
+    font-size: 14px; cursor: pointer; margin-top: 20px;
+    display: block; margin-left: auto; margin-right: auto;
+  }
+
+  /* ===== NOTI ===== */
+  .noti {
+    position: fixed; top: 20px; left: 50%;
+    transform: translateX(-50%) translateY(-150px);
+    background: linear-gradient(135deg, #5c1a1a, #8b2626);
+    color: #fff; padding: 15px 22px; border-radius: 14px;
+    box-shadow: 0 10px 40px rgba(92, 26, 26, 0.5);
+    font-weight: bold; font-size: 14px; z-index: 9999;
+    max-width: 340px; width: calc(100% - 40px);
+    text-align: center; opacity: 0;
+    transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55),
+                opacity 0.4s ease;
+  }
+  .noti.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+  .noti .line1 { font-size: 15px; margin-bottom: 6px; }
+  .noti .bonus {
+    color: #ffcc00; font-size: 16px;
+    background: rgba(0, 0, 0, 0.25);
+    padding: 8px 12px; border-radius: 10px;
+    margin-top: 8px; display: inline-block;
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== AUTH SCREEN ===== -->
+<div id="authScreen">
+  <div class="box">
+    <div class="title-wrap">
+      <div class="title left" id="titleLogin">
+        <h1>🔐 RX7LOTTERY</h1>
+        <div class="sub">Login ဝင်ပါ</div>
+      </div>
+      <div class="title right" id="titleSignup">
+        <h1>🔐 RX7LOTTERY</h1>
+        <div class="sub">Account အသစ် ဖွင့်ပါ</div>
+      </div>
+    </div>
+
+    <div class="switch">
+      <div class="slider" id="slider"></div>
+      <button class="switch-btn active" id="btnLoginTab" onclick="setMode('login')">Login</button>
+      <button class="switch-btn" id="btnSignupTab" onclick="setMode('signup')">Sign Up</button>
+    </div>
+
+    <div class="form-wrap">
+      <div class="form-slide" id="formSlide">
+        <div class="form-panel login-panel">
+          <input type="text" id="loginName" placeholder="အသုံးပြုသူ နာမည်">
+          <input type="password" id="loginPass" placeholder="စကားဝှက်">
+          <div class="msg" id="loginMsg"></div>
+          <button class="main" onclick="doLogin()">Login</button>
+        </div>
+        <div class="form-panel signup-panel">
+          <input type="text" id="signupName" placeholder="အသုံးပြုသူ နာမည်">
+          <input type="password" id="signupPass" placeholder="စကားဝှက်">
+          <input type="password" id="signupPass2" placeholder="စကားဝှက် ပြန်ရိုက်ပါ">
+          <div class="msg" id="signupMsg"></div>
+          <button class="main" onclick="doSignup()">Sign Up</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="credit">
+      Developed by <span>MeNgHeaNg</span><br>
+      © 2026 RX7LOTTERY
+    </div>
+  </div>
+</div>
+
+<!-- ===== HOME SCREEN ===== -->
+<div id="homeScreen">
+
+  <div class="top-bar">RX7LOTTERY</div>
+
+  <!-- Banner -->
+  <div class="banner-box">
+    <img src="https://i.ibb.co/G394zN05/1789137607713.jpg" alt="Banner" class="banner-bg">
+    <div class="banner-text">
+      <div class="line1">🎁 အထူးကမ်းလှမ်းချက်</div>
+      <div class="line2">ဂိမ်းအကောင့်သစ်ဖွင့် ဝင်သူတိုင်း</div>
+      <div class="line3">၁၄၅၅ ကျပ်</div>
+      <div class="line4">ရရှိကြောင်း စည်းကမ်းချက်များ</div>
+    </div>
+  </div>
+
+  <!-- Cards -->
+  <div class="card-row">
+    <div class="card" onclick="openGame('LOTTER')">
+      <img src="https://i.ibb.co/1YFCDYK6/1000043960-removebg-preview.png" alt="LOTTER" class="card-img">
+      <div class="card-title">LOTTER</div>
+    </div>
+    <div class="card" onclick="openGame('?????')">
+      <div class="card-icon">❓</div>
+      <div class="card-title">?????</div>
+    </div>
+  </div>
+
+  <!-- Notice -->
+  <div class="notice-bar">
+    "ယုံကြည်စိတ်ချစွာစီးတီးချာ"
+  </div>
+
+</div>
+
+<!-- ===== BONUS PAGE ===== -->
+<div class="page" id="bonusPage">
+  <h1 class="app-name">🎁 ဘောနပ်စ်</h1>
+  <div class="info-card">
+    <div class="info-label">သင့် Referral Code</div>
+    <div class="ref-code" id="myRefCode">------</div>
+    <button class="copy-btn" onclick="copyRef()">📋 Copy လုပ်ပါ</button>
+  </div>
+  <div class="info-card">
+    <div class="info-label">လူခေါ်ရင် ရမည့် ဘောနပ်စ်</div>
+    <div class="info-value">💰 0.1 Point / လူ</div>
+  </div>
+  <div class="info-card">
+    <div class="info-label">သင်ခေါ်ထားသူ</div>
+    <div class="ref-count" id="refCount">0 ယောက်</div>
+  </div>
+  <div class="info-card">
+    <div class="info-label">စုစုပေါင်း ဘောနပ်စ်</div>
+    <div class="bonus-total" id="bonusTotal">0.0 Point</div>
+  </div>
+  <button class="back-btn" onclick="backToMenu()">⬅ နောက်သို့</button>
+</div>
+
+<!-- ===== ACCOUNT PAGE ===== -->
+<div class="page" id="accountPage">
+  <h1 class="app-name">👤 ကျွန်ုပ်၏ အကောင့်</h1>
+  <div class="info-card">
+    <div class="info-label">အသုံးပြုသူ နာမည်</div>
+    <div class="info-value" id="accName">-</div>
+  </div>
+  <div class="info-card">
+    <div class="info-label">အကောင့် ဖွင့်ချိန်</div>
+    <div class="info-value" id="accCreated">-</div>
+  </div>
+  <div class="info-card">
+    <div class="info-label">လက်ကျန် Points</div>
+    <div class="info-value" id="accPoints">0.0</div>
+  </div>
+  <button class="back-btn" onclick="logout()" style="background:#c00;">Logout</button>
+</div>
+
+<!-- ===== NOTIFICATION ===== -->
+<div class="noti" id="noti">
+  <div class="line1">✅ Login အောင်မြင်ပါသည်</div>
+  <div class="line2">🎁 အကောင့်ဖွင့်ဘောနပ်စ်</div>
+  <div class="bonus">💰 ၁၄၅၅ ကျပ် ရရှိပါသည်</div>
+</div>
+
+<!-- ===== BOTTOM NAV ===== -->
+<div class="bottom-nav" id="bottomNav">
+  <button class="nav-item active" onclick="navTo('home', this)">
+    <span class="nav-icon">🏠</span>
+    <span class="nav-label">Home</span>
+  </button>
+  <button class="nav-item" onclick="navTo('wallet', this)">
+    <span class="nav-icon">💼</span>
+    <span class="nav-label">Wallet</span>
+  </button>
+  <button class="nav-item" onclick="navTo('account', this)">
+    <span class="nav-icon">👤</span>
+    <span class="nav-label">Account</span>
+  </button>
+</div>
+
+<script>
+  const USERS_KEY = 'rx7_users';
+  const SESSION_KEY = 'rx7_session';
+
+  function getUsers() { return JSON.parse(localStorage.getItem(USERS_KEY) || '{}'); }
+  function saveUsers(u) { localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
+  function setSession(n) { localStorage.setItem(SESSION_KEY, n); }
+  function getSession() { return localStorage.getItem(SESSION_KEY); }
+  function clearSession() { localStorage.removeItem(SESSION_KEY); }
+
+  function showNoti() {
+    const noti = document.getElementById('noti');
+    noti.classList.add('show');
+    setTimeout(() => noti.classList.remove('show'), 4000);
+  }
+
+  function setMode(mode) {
+    const slider = document.getElementById('slider');
+    const formSlide = document.getElementById('formSlide');
+    const titleLogin = document.getElementById('titleLogin');
+    const titleSignup = document.getElementById('titleSignup');
+    const btnLogin = document.getElementById('btnLoginTab');
+    const btnSignup = document.getElementById('btnSignupTab');
+
+    document.getElementById('loginMsg').textContent = '';
+    document.getElementById('signupMsg').textContent = '';
+
+    if (mode === 'login') {
+      slider.classList.remove('right');
+      formSlide.style.transform = 'translateX(0)';
+      titleLogin.className = 'title left';
+      titleSignup.className = 'title right';
+      btnLogin.classList.add('active');
+      btnSignup.classList.remove('active');
+    } else {
+      slider.classList.add('right');
+      formSlide.style.transform = 'translateX(-50%)';
+      titleLogin.className = 'title hidden-left';
+      titleSignup.className = 'title left';
+      btnLogin.classList.remove('active');
+      btnSignup.classList.add('active');
+    }
+  }
+
+  function doLogin() {
+    const name = document.getElementById('loginName').value.trim();
+    const pass = document.getElementById('loginPass').value;
+    const msg = document.getElementById('loginMsg');
+
+    if (!name || !pass) {
+      msg.textContent = '⚠️ နာမည်နဲ့ စကားဝှက် ဖြည့်ပါ';
+      msg.className = 'msg';
+      return;
+    }
+    const users = getUsers();
+    if (!users[name]) {
+      msg.textContent = '⚠️ ဒီနာမည် မရှိဘူး';
+      msg.className = 'msg';
+      return;
+    }
+    if (users[name].password !== pass) {
+      msg.textContent = '⚠️ စကားဝှက် မှားတယ်';
+      msg.className = 'msg';
+      return;
+    }
+    setSession(name);
+    showHome();
+    showNoti();
+  }
+
+  function doSignup() {
+    const name = document.getElementById('signupName').value.trim();
+    const pass = document.getElementById('signupPass').value;
+    const pass2 = document.getElementById('signupPass2').value;
+    const msg = document.getElementById('signupMsg');
+
+    if (!name || !pass || !pass2) {
+      msg.textContent = '⚠️ အကွက် အားလုံး ဖြည့်ပါ';
+      msg.className = 'msg';
+      return;
+    }
+    if (name.length < 3) {
+      msg.textContent = '⚠️ နာမည် အနည်းဆုံး ၃ လုံး';
+      msg.className = 'msg';
+      return;
+    }
+    if (pass.length < 4) {
+      msg.textContent = '⚠️ စကားဝှက် အနည်းဆုံး ၄ လုံး';
+      msg.className = 'msg';
+      return;
+    }
+    if (pass !== pass2) {
+      msg.textContent = '⚠️ စကားဝှက် နှစ်ခု မတူဘူး';
+      msg.className = 'msg';
+      return;
+    }
+
+    const users = getUsers();
+    if (users[name]) {
+      msg.textContent = '⚠️ ဒီနာမည် ရှိပြီးသား';
+      msg.className = 'msg';
+      return;
+    }
+
+    users[name] = { password: pass, created: Date.now(), refCount: 0 };
+    saveUsers(users);
+    msg.textContent = '✅ Account ဖွင့်ပြီးပါပြီ! Login ဝင်ပါ';
+    msg.className = 'msg ok';
+
+    setTimeout(() => {
+      setMode('login');
+      document.getElementById('loginName').value = name;
+      document.getElementById('loginPass').value = '';
+      document.getElementById('signupName').value = '';
+      document.getElementById('signupPass').value = '';
+      document.getElementById('signupPass2').value = '';
+    }, 1200);
+  }
+
+  function showHome() {
+    document.getElementById('authScreen').style.display = 'none';
+    document.getElementById('homeScreen').classList.add('active');
+    document.getElementById('bottomNav').classList.add('show');
+  }
+
+  function logout() {
+    clearSession();
+    document.getElementById('authScreen').style.display = 'flex';
+    document.getElementById('homeScreen').classList.remove('active');
+    document.getElementById('bonusPage').classList.remove('active');
+    document.getElementById('accountPage').classList.remove('active');
+    document.getElementById('loginName').value = '';
+    document.getElementById('loginPass').value = '';
+    document.getElementById('bottomNav').classList.remove('show');
+    setMode('login');
+  }
+
+  function navTo(page, el) {
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    if (el) el.classList.add('active');
+
+    document.getElementById('homeScreen').classList.remove('active');
+    document.getElementById('bonusPage').classList.remove('active');
+    document.getElementById('accountPage').classList.remove('active');
+
+    if (page === 'home') {
+      document.getElementById('homeScreen').classList.add('active');
+    } else if (page === 'wallet') {
+      document.getElementById('bonusPage').classList.add('active');
+      loadBonusData();
+    } else if (page === 'account') {
+      document.getElementById('accountPage').classList.add('active');
+      loadAccountData();
+    }
+  }
+
+  function backToMenu() {
+    document.getElementById('bonusPage').classList.remove('active');
+    document.getElementById('accountPage').classList.remove('active');
+    document.getElementById('homeScreen').classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    document.querySelectorAll('.nav-item')[0].classList.add('active');
+  }
+
+  function openGame(name) {
+    alert('🎮 ' + name + '\n\n(နောက်အဆင့်မှာ ထည့်ပါမယ်)');
+  }
+
+  function loadBonusData() {
+    const name = getSession();
+    if (!name) return;
+    const users = getUsers();
+    const user = users[name];
+    if (!user) return;
+
+    if (!user.refCode) {
+      user.refCode = name.toUpperCase() + Math.floor(1000 + Math.random() * 9000);
+      saveUsers(users);
+    }
+    const refCount = user.refCount || 0;
+    const bonusTotal = (refCount * 0.1).toFixed(1);
+
+    document.getElementById('myRefCode').textContent = user.refCode;
+    document.getElementById('refCount').textContent = refCount + ' ယောက်';
+    document.getElementById('bonusTotal').textContent = bonusTotal + ' Point';
+  }
+
+  function copyRef() {
+    const code = document.getElementById('myRefCode').textContent;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(code).then(() => alert('📋 Copy ပြီးပါပြီ: ' + code))
+        .catch(() => alert('Code: ' + code));
+    } else { alert('Code: ' + code); }
+  }
+
+  function loadAccountData() {
+    const name = getSession();
+    if (!name) return;
+    const users = getUsers();
+    const user = users[name];
+    if (!user) return;
+
+    const refCount = user.refCount || 0;
+    const bonusTotal = (refCount * 0.1).toFixed(1);
+    const created = user.created ? new Date(user.created).toLocaleDateString() : '-';
+
+    document.getElementById('accName').textContent = name;
+    document.getElementById('accCreated').textContent = created;
+    document.getElementById('accPoints').textContent = bonusTotal + ' Point';
+  }
+
+  window.addEventListener('load', () => {
+    const s = getSession();
+    if (s && getUsers()[s]) showHome();
+  });
+</script>
+</body>
+</html>
